@@ -44,14 +44,14 @@ type TapeFile struct {
 	endMB    int
 }
 
-func AddTape() {
+/* func AddTape() {
 	t1 := Tape{capacity: 10, readSpeed: 400, windSpeed: 600, position:0, mounted: true}
 	t1.catalog = make(map[string]TapeFile)
 	fmt.Println(t1)
 	t1.addFile(File{"f1",2000,"ds1"})
 	t1.addFile(File{"f2",2000,"ds1"})
 	t1.tapeInfo()
-}
+} */
 
 func (t Tape) tapeInfo(){	
 	fmt.Printf("Id: %d No. of files: %d ",t.id,len(t.catalog))
