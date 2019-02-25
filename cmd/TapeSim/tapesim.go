@@ -10,7 +10,7 @@ func main() {
 	fmt.Println("Hello World")
 	// t1 := TapeSim.Tape{}
 	TapeSim.LoadTapes()
-	files := TapeSim.GetFileList("../TapeSim/jsonFiles/2files.json")
+	files := TapeSim.GetFileList("theFiles.json")
 	TapeSim.WriteFiles(files)
 
 
