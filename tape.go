@@ -2,14 +2,21 @@ package TapeSim
 
 import "fmt"
 
+// Anything that can store and retrieve a file
+type FileStore interface{
+	writeFile(f File)
+	readFile(f File)
+	gotFile(f File) bool
+}
+
 type Tape struct {
 	id int
 	// size in GB
 	capacity int
 	// read speed MB/s
-	readSpeed int
+	readRate int
 	// wind speed MB/s
-	windSpeed int
+	seekRate int
 	// the files
 //	catalog []TapeFile
 	catalog map[string]TapeFile
@@ -17,19 +24,11 @@ type Tape struct {
 	mounted bool
 }
 
-func (t *Tape) addFile(f File) {
-	// find the last MB of the last file
-	// OR assume we do not mix read and write, so position is the end 
-
-	tf := TapeFile{t.position ,t.position+f.size}
-	t.catalog[f.fileName] = tf
-	t.position = tf.endMB
-}
-
-func (t *Tape) readFile(f File){
-	//locate,wind,read
-	tf := t.catalog[f.fileName]
-	fmt.Println(tf)
+func (t Tape) gotFile(f File) bool{
+	if _,ok := t.catalog[f.fileName];ok{
+		return true
+	}
+	return false
 }
 
 type File struct {
