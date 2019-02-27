@@ -2,7 +2,6 @@ package TapeSim
 
 import ( 
 	"fmt"
-	"sort"
 )
 
 // A fictitous 1-dimensional tape
@@ -40,21 +39,4 @@ func (t *SimpleTape) readFiles(f []File) float64 {
 // order requested files by position
 func (t *SimpleTape) orderRequestedFiles() {
 
-type kv struct {
-	Key   string
-	Value int
-}
-
-var ss []kv
-for k, v := range t.catalog {
-	ss = append(ss, kv{k, v})
-}
-
-sort.Slice(ss, func(i, j int) bool {
-	return ss[i].Value < ss[j].Value
-})
-
-for _, kv := range ss {
-	fmt.Printf("%s, %d\n", kv.Key, kv.Value)
-}
 }

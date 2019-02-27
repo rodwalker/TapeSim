@@ -59,8 +59,11 @@ func ReadFiles(f string) float64 {
 }
 
 // load list of files from json
-func GetFileList(file string) []File {
+func GetFileList(file string) map[string][]File {
+
+	// and store datasets for read tests. Not advisable for dump of multi-PB system!
 	var files []File
+	datasetFiles := make(map[string][]File)
 
 	type Dataset struct {
 		Dsname string `json:"dsname"`
@@ -84,11 +87,16 @@ func GetFileList(file string) []File {
 	for i := 0; i<len(datasets.Datasets);i++ {
 		ds := datasets.Datasets[i].Dsname
 		size := datasets.Datasets[i].FileSize
-		for j := 0;j<datasets.Datasets[i].NFiles;j++{		
+		for j := 0;j<datasets.Datasets[i].NFiles;j++{
 			fn := ds+"_"+strconv.Itoa(j)
 			files = append(files,File{fn,size,ds})
+			datasetFiles[ds] = append(datasetFiles[ds],File{fn,size,ds})
 		}
+		}
+	var newfiles []File	
+	for _,dsfiles := range datasetFiles{
+		newfiles = append(newfiles,dsfiles...)
 	}
-	
-    return files
+	fmt.Println(len(newfiles))
+    return datasetFiles
 }
