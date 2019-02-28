@@ -1,8 +1,8 @@
 package TapeSim
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -10,23 +10,24 @@ import (
 
 var mountTime = 200
 var numberDrives = 2
-var tapes[] SimpleTape
+var tapes []SimpleTape
 
 func LoadTapes() {
-	for id:=0;id<=9;id++ {
-//	t = Tape{id: id, capacity: 10, readSpeed: 360, windSpeed: 360,	position:0,mounted: true, catalog: make(map[string]TapeFile)}
-//	t.tapeInfo()
-	tapes = append(tapes,SimpleTape{Tape{id: id, capacity: 10, readRate: 360, seekRate: 360,	position:0,
-		mounted: true, catalog: make(map[string]TapeFile)}})
+	for id := 0; id <= 9; id++ {
+		//	t = Tape{id: id, capacity: 10, readSpeed: 360, windSpeed: 360,	position:0,mounted: true, catalog: make(map[string]TapeFile)}
+		//	t.tapeInfo()
+		tapes = append(tapes, SimpleTape{Tape{id: id, capacity: 10, readRate: 360, seekRate: 360, position: 0,
+			mounted: true, catalog: make(map[string]TapeFile)}})
 	}
 }
 
-// write files in order 
-func WriteFiles(files []File){
+// write files in order
+func WriteFiles(files []File) {
 	// set first tape, then next when full
 	i := 0
 	t := tapes[i]
-	for _,f := range files{
+	// order is not enforced!
+	for _, f := range files {
 		// first check it fits
 		if t.position+f.size > 1000*1000*t.capacity {
 			fmt.Println("Tape full. Rewind and mount next.")
@@ -60,24 +61,28 @@ func ReadFiles(files []File) float64 {
 	// as tape optimizes this. First tape for now.
 	// give full list to each tape, and get back the ones this tape has
 	var onTape [][]File
-	for _,t := range tapes{
-		onTape = append(onTape,t.gotFiles(files))
+	for _, t := range tapes {
+		onTape = append(onTape, t.gotFiles(files))
 	}
 	timeTaken := 0.0
 	// to receive timeTaken from each tape
 	ch := make(chan float64)
-	for i,t := range tapes{
-		if len(onTape[i]) > 0{
-			fmt.Println("Read tape: ",i)
-			go func (i int, t SimpleTape){
-				 t.readFiles(onTape[i],ch)
-			} (i,t);
+	var times []float64
+	for i, t := range tapes {
+		if len(onTape[i]) > 0 {
+			fmt.Println("Read tape: ", i)
+			files := onTape[i]
+			go func(files []File, t SimpleTape) {
+				t.readFiles(files, ch)
+			}(files, t)
+			times = append(times, <-ch)
 		}
 	}
-	
-	fmt.Println("Chan: ",<-ch)
-	
-	
+
+	fmt.Println(times)
+	for _, t := range times {
+		timeTaken += t
+	}
 	return timeTaken
 }
 
@@ -89,37 +94,37 @@ func GetFileList(file string) map[string][]File {
 	datasetFiles := make(map[string][]File)
 
 	type Dataset struct {
-		Dsname string `json:"dsname"`
-		FileSize int `json:"fileSize"`
-		NFiles int `json:"NFiles"`
+		Dsname   string `json:"dsname"`
+		FileSize int    `json:"fileSize"`
+		NFiles   int    `json:"NFiles"`
 	}
 	type Datasets struct {
 		Datasets []Dataset `json:"datasets"`
 	}
 
-    jsonFile, err := os.Open(file)
-    defer jsonFile.Close()
-    if err != nil {
-        fmt.Println(err.Error())
+	jsonFile, err := os.Open(file)
+	defer jsonFile.Close()
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	
+
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var datasets Datasets
 	json.Unmarshal(byteValue, &datasets)
 	//fmt.Println(datasets)
-	for i := 0; i<len(datasets.Datasets);i++ {
+	for i := 0; i < len(datasets.Datasets); i++ {
 		ds := datasets.Datasets[i].Dsname
 		size := datasets.Datasets[i].FileSize
-		for j := 0;j<datasets.Datasets[i].NFiles;j++{
-			fn := ds+"_"+strconv.Itoa(j)
-			files = append(files,File{fn,size,ds})
-			datasetFiles[ds] = append(datasetFiles[ds],File{fn,size,ds})
+		for j := 0; j < datasets.Datasets[i].NFiles; j++ {
+			fn := ds + "_" + strconv.Itoa(j)
+			files = append(files, File{fn, size, ds})
+			datasetFiles[ds] = append(datasetFiles[ds], File{fn, size, ds})
 		}
-		}
-	var newfiles []File	
-	for _,dsfiles := range datasetFiles{
-		newfiles = append(newfiles,dsfiles...)
+	}
+	var newfiles []File
+	for _, dsfiles := range datasetFiles {
+		newfiles = append(newfiles, dsfiles...)
 	}
 	fmt.Println(len(newfiles))
-    return datasetFiles
+	return datasetFiles
 }
