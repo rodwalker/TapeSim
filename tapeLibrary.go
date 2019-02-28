@@ -64,11 +64,20 @@ func ReadFiles(files []File) float64 {
 		onTape = append(onTape,t.gotFiles(files))
 	}
 	timeTaken := 0.0
+	// to receive timeTaken from each tape
+	ch := make(chan float64)
 	for i,t := range tapes{
 		if len(onTape[i]) > 0{
-			timeTaken += t.readFiles(onTape[i])
+			fmt.Println("Read tape: ",i)
+			go func (i int, t SimpleTape){
+				 t.readFiles(onTape[i],ch)
+			} (i,t);
 		}
 	}
+	
+	fmt.Println("Chan: ",<-ch)
+	
+	
 	return timeTaken
 }
 
