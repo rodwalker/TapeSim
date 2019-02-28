@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
+	//"math/rand"
 	"github.com/rodwalker/TapeSim"
 )
 
 func main() {
-	fmt.Println("Hello World")
-	// t1 := TapeSim.Tape{}
+	fmt.Println("Loading tapes")
 	TapeSim.LoadTapes()
 	datasetFiles := TapeSim.GetFileList("jsonFiles/2files.json")
 	var files []TapeSim.File
 	for _,dsfiles := range datasetFiles{
 		files = append(files,dsfiles...)
 	}
+	//rand.Shuffle(len(files), func(i, j int) { files[i], files[j] = files[j], files[i] })
 	TapeSim.WriteFiles(files)
-	id:=TapeSim.LocateFile("ds1_1")
-	id =TapeSim.LocateFile("ds3_1")
+
 	//read 1 file 
-	timeTaken := TapeSim.ReadFiles("ds1_0")
-	fmt.Println(id,timeTaken)
+	fmt.Println(len(datasetFiles["ds1"]))
+	timeTaken := TapeSim.ReadFiles(datasetFiles["ds1"][0:])
+	fmt.Println(timeTaken)
 }

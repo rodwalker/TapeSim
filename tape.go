@@ -24,11 +24,16 @@ type Tape struct {
 	mounted bool
 }
 
-func (t Tape) gotFile(f File) bool{
-	if _,ok := t.catalog[f.fileName];ok{
-		return true
+func (t Tape) gotFiles(files []File) []File{
+	var got []File
+	for _,f := range files{
+		if _,ok := t.catalog[f.fileName];ok{
+		  got = append(got,f)
+		}
 	}
-	return false
+	fmt.Printf("Tape %d has %d of %d files\n",t.id,len(got),len(files))
+	fmt.Println()
+	return got
 }
 
 type File struct {

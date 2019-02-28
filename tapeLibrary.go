@@ -13,7 +13,7 @@ var numberDrives = 2
 var tapes[] SimpleTape
 
 func LoadTapes() {
-	for id:=1;id<=10;id++ {
+	for id:=0;id<=9;id++ {
 //	t = Tape{id: id, capacity: 10, readSpeed: 360, windSpeed: 360,	position:0,mounted: true, catalog: make(map[string]TapeFile)}
 //	t.tapeInfo()
 	tapes = append(tapes,SimpleTape{Tape{id: id, capacity: 10, readRate: 360, seekRate: 360,	position:0,
@@ -29,32 +29,46 @@ func WriteFiles(files []File){
 	for _,f := range files{
 		// first check it fits
 		if t.position+f.size > 1000*1000*t.capacity {
-			fmt.Println("Tape full. Mounting next.")
+			fmt.Println("Tape full. Rewind and mount next.")
 			t.tapeInfo()
+			t.position = 0
 			i++
 			t = tapes[i]
 		}
 		t.writeFile(f)
 	}
-	t.tapeInfo()	
+	t.tapeInfo()
+	// rewind last tape
+	t.position = 0
+
 }
 
-func LocateFile(f string) int {
+/* func LocateFile(f string) int {
 	for _,t := range tapes {
-		if t.gotFile(File{fileName:f}){
+		if len(t.gotFiles([File{fileName:f}])) == 1 {
 			fmt.Printf("Got file on %d \n",t.id)
 			return t.id
 		}
 	}
 	fmt.Printf("%s not found on any of %d tapes\n",f,len(tapes))
 	return 0
-} 
+}  */
 
 // Return to read list of files
-func ReadFiles(f string) float64 {
-	_ = LocateFile(f)
-	tapes[0].position=0
-	timeTaken:=tapes[0].readFile(File{fileName:f})
+func ReadFiles(files []File) float64 {
+	// need to look up and group by tape. No need to order
+	// as tape optimizes this. First tape for now.
+	// give full list to each tape, and get back the ones this tape has
+	var onTape [][]File
+	for _,t := range tapes{
+		onTape = append(onTape,t.gotFiles(files))
+	}
+	timeTaken := 0.0
+	for i,t := range tapes{
+		if len(onTape[i]) > 0{
+			timeTaken += t.readFiles(onTape[i])
+		}
+	}
 	return timeTaken
 }
 
