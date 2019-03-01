@@ -1,10 +1,10 @@
 {
     "datasets":[
-	{"dsname": "ds1",
-	 "fileSize": 2000,
-	 "NFiles":10000
-	},
 	{"dsname": "ds2",
+	 "fileSize": 2000,
+	 "NFiles":4000
+	},
+	{"dsname": "ds1",
 	 "fileSize": 3000,
 	 "NFiles":6000
 	}

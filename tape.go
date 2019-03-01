@@ -6,7 +6,7 @@ import "fmt"
 type FileStore interface{
 	writeFile(f File)
 	readFile(f File)
-	gotFile(f File) bool
+	gotFiles(files []File) bool
 }
 
 type Tape struct {
